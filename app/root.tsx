@@ -1,11 +1,5 @@
-import {
-  isRouteErrorResponse,
-  Links,
-  Meta,
-  Outlet,
-  Scripts,
-  ScrollRestoration,
-} from "react-router";
+import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
+import { SiteFooter } from "~/components/site-footer";
 
 import type { Route } from "./+types/root";
 import "./app.css";
@@ -34,6 +28,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         {children}
+        <SiteFooter />
         <ScrollRestoration />
         <Scripts />
       </body>
@@ -75,3 +70,4 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
     </main>
   );
 }
+

@@ -44,7 +44,7 @@ export function SiteHeader() {
           {/* </span> */}
           <span className="brand-text">
             <span className="brand-title">Narropil Honey</span>
-            <span className="brand-sub">Natural � Authentic � Pesticide-free</span>
+            <span className="brand-sub">Natural • Authentic • Pesticide-free</span>
           </span>
         </a>
 
@@ -137,3 +137,5 @@ export function SiteHeader() {
     </header>
   );
 }
+
+
