@@ -3,6 +3,8 @@ import type { Route } from "./+types/home";
 import { Leaf, ShieldCheck, Sprout, X, ChevronLeft, ChevronRight, Phone, Mail, MapPin, Clock } from "lucide-react";
 import { SiteHeader } from "~/components/site-header";
 import { useFetcher } from "react-router";
+import { appendFile, mkdir } from "node:fs/promises";
+import path from "node:path";
 
 export async function action({ request }: Route.ActionArgs) {
   // Contact form POST -> send email via SMTP.
@@ -20,10 +22,23 @@ export async function action({ request }: Route.ActionArgs) {
   const SMTP_PASS = process.env.SMTP_PASS;
   const SMTP_TO = process.env.SMTP_TO || "narropilhoneyltd@gmail.com";
   const SMTP_FROM = process.env.SMTP_FROM || SMTP_USER || "no-reply@narropilhoney.co.ke";
+  const SMTP_HOST = process.env.SMTP_HOST;
+  const SMTP_PORT = Number(process.env.SMTP_PORT);
+  const SMTP_SECURE =
+    typeof process.env.SMTP_SECURE === "string"
+      ? process.env.SMTP_SECURE === "true"
+      : SMTP_PORT === 465;
 
   if (!SMTP_USER || !SMTP_PASS) {
+    await logContactError({
+      fullName,
+      email,
+      phone,
+      message,
+      reason: "Missing SMTP credentials.",
+    });
     return Response.json(
-      { ok: false, error: "Email service is not configured (missing SMTP credentials)." },
+      { ok: false, error: "Unable to send your message right now. Please try again later." },
       { status: 500 },
     );
   }
@@ -32,9 +47,9 @@ export async function action({ request }: Route.ActionArgs) {
     const nodemailer = await import("nodemailer");
 
     const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 465,
-      secure: true,
+      host: SMTP_HOST,
+      port: SMTP_PORT,
+      secure: SMTP_SECURE,
       auth: { user: SMTP_USER, pass: SMTP_PASS },
     });
 
@@ -65,7 +80,43 @@ ${phone ? `<p><b>Phone:</b> ${escapeHtml(phone)}</p>` : ""}
     return Response.json({ ok: true }, { status: 200 });
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Failed to send email.";
-    return Response.json({ ok: false, error: msg }, { status: 500 });
+    await logContactError({
+      fullName,
+      email,
+      phone,
+      message,
+      reason: msg,
+    });
+    return Response.json(
+      { ok: false, error: "Unable to send your message right now. Please try again later." },
+      { status: 500 },
+    );
+  }
+}
+
+async function logContactError(details: {
+  fullName: string;
+  email: string;
+  phone: string;
+  message: string;
+  reason: string;
+}) {
+  try {
+    const logDir = path.join(process.cwd(), "logs");
+    await mkdir(logDir, { recursive: true });
+    const logPath = path.join(logDir, "contact-errors.log");
+    const entry = [
+      "-----",
+      new Date().toISOString(),
+      `name=${details.fullName}`,
+      `email=${details.email}`,
+      `phone=${details.phone || "-"}`,
+      `message=${details.message}`,
+      `reason=${details.reason}`,
+    ].join("\n");
+    await appendFile(logPath, `${entry}\n`, "utf8");
+  } catch {
+    // Ignore logging failures to avoid breaking form submissions.
   }
 }
 

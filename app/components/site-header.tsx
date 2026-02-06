@@ -1,3 +1,4 @@
+import { useEffect, useState, type MouseEvent } from "react";
 import { Facebook, Instagram, Menu, Music2, Phone, ShoppingBag, X } from "lucide-react";
 
 import { Button } from "~/components/ui/button";
@@ -35,6 +36,38 @@ const socialLinks = [
 ];
 
 export function SiteHeader() {
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [pendingHash, setPendingHash] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (mobileOpen || !pendingHash) return;
+
+    const hash = pendingHash;
+    setPendingHash(null);
+
+    if (hash.startsWith("#")) {
+      const id = hash.slice(1);
+      const target = document.getElementById(id);
+      if (target) {
+        target.scrollIntoView({ behavior: "smooth", block: "start" });
+        if (history.replaceState) {
+          history.replaceState(null, "", hash);
+        } else {
+          window.location.hash = hash;
+        }
+        return;
+      }
+    }
+
+    window.location.href = hash;
+  }, [mobileOpen, pendingHash]);
+
+  const handleMobileNavClick = (event: MouseEvent<HTMLAnchorElement>, href: string) => {
+    event.preventDefault();
+    setPendingHash(href);
+    setMobileOpen(false);
+  };
+
   return (
     <header className="site-header">
       <div className="wrap header-inner">
@@ -87,7 +120,7 @@ export function SiteHeader() {
             ))}
           </div>
 
-          <Sheet>
+          <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger asChild>
               <Button
                 variant="outline"
@@ -109,11 +142,14 @@ export function SiteHeader() {
               </div>
               <nav className="mobile-nav" aria-label="Mobile Navigation">
                 {navLinks.map((link) => (
-                  <SheetClose asChild key={link.href}>
-                    <a className="mobile-link" href={link.href}>
-                      {link.label}
-                    </a>
-                  </SheetClose>
+                  <a
+                    key={link.href}
+                    className="mobile-link"
+                    href={link.href}
+                    onClick={(event) => handleMobileNavClick(event, link.href)}
+                  >
+                    {link.label}
+                  </a>
                 ))}
               </nav>
               <div className="mobile-socials">

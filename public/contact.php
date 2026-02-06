@@ -7,12 +7,12 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 // === CONFIG: fill these in ===
-$SMTP_FROM = getenv('SMTP_FROM') ?: 'reply@narropil.co.ke.com';
-$SMTP_USER = getenv('SMTP_USER') ?: 'edwardsalonik9@gmail.com';
-$SMTP_PASS = getenv('SMTP_PASS') ?: 'your_app_password_here';
-$SMTP_TO   = getenv('SMTP_TO')   ?: 'narropilhoneyltd@gmail.com';
-$SMTP_HOST = getenv('SMTP_HOST') ?: 'smtp.gmail.com';
-$SMTP_PORT = getenv('SMTP_PORT') ?: 587;
+$SMTP_FROM = getenv('SMTP_FROM'); //?: 'reply@narropil.co.ke.com';
+$SMTP_USER = getenv('SMTP_USER');// ?: 'edwardsalonik9@gmail.com';
+$SMTP_PASS = getenv('SMTP_PASS');// ?: 'your_app_password_here';
+$SMTP_TO   = getenv('SMTP_TO');//   ?: 'narropilhoneyltd@gmail.com';
+$SMTP_HOST = getenv('SMTP_HOST');// ?: 'smtp.gmail.com';
+$SMTP_PORT = getenv('SMTP_PORT');// ?: 587;
 
 require __DIR__ . '/phpmailer/PHPMailer.php';
 require __DIR__ . '/phpmailer/SMTP.php';

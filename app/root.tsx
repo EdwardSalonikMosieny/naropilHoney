@@ -15,6 +15,11 @@ export const links: Route.LinksFunction = () => [
     rel: "stylesheet",
     href: "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap",
   },
+  {
+    rel: "icon",
+    type: "image/jpeg",
+    href: "/assets/images/narropill%20logo.jpg",
+  },
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
